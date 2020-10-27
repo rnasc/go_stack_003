@@ -34,4 +34,3 @@ issue is found).
 ## Be my guest
 So, please be my guest to check the code here and suggest improvements, point out defects, and code
 together.
->>>>>>> d1458c4cc8e9439894dde43b866caa9cdbd40802

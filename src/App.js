@@ -8,17 +8,26 @@ export default function App() {
 
   useEffect(() => {
     api.get('repositories').then(response => {
-      console.log(response.data);
       setRepositories(response.data);
     })
   }, [])
 
-  async function handleAddRepository() {
-    const response = await api.post('repositories', {
-      title: `Novo repositório ${Date.now()}`
+  async function handleLikeToRepository(id) {
+    const repositoryIndex = repositories.findIndex(repo => repo.id === id)
+    if (repositoryIndex < 0) {
+      console.log('Repositório -> id não encontrado')
+      return;
+    }
+    const response = await api.post(`repositories/${id}/like`)
+    likedRepository = response.data
+    const updatedRepos = repositories.map(repo => {
+      if (repo.id === id) {
+        return likedRepository;
+      } else {
+        return repo;
+      }
     })
-    const repository = response.data
-    setRepositories([...repositories, repository])
+    setRepositories(updatedRepos)
   }
 
   return (
@@ -29,17 +38,25 @@ export default function App() {
           data={repositories}
           keyExtractor={repository => repository.id}
           renderItem={({ item: repository }) => (
-            <Text style={styles.title}>{repository.title}</Text>
+            <>
+              <Text style={styles.title}>{repository.title} ({repository.likes})</Text>
+              <Text
+                testID={`repository-likes-${repository.id}`}
+              >
+                {repository.likes} curtida{repository.likes > 1 ? "s" : ''}
+              </Text>
+              <TouchableOpacity
+                activeOpacity={0.6}
+                style={styles.button}
+                onPress={() => handleLikeToRepository(repository.id)}
+                testID={`like-button-${repository.id}`}
+              >
+                <Text style={styles.buttonText}>Curtir</Text>
+              </TouchableOpacity>
+            </>
           )}
         />
 
-        <TouchableOpacity
-          activeOpacity={0.6}
-          style={styles.button}
-          onPress={handleAddRepository}
-        >
-          <Text style={styles.buttonText}>Adicionar Repositório</Text>
-        </TouchableOpacity>
       </SafeAreaView>
     </>
   );
